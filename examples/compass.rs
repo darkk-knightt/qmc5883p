@@ -1,9 +1,9 @@
 //! Linux i2c demo
 
 extern crate linux_embedded_hal;
-extern crate qmc5883l;
+extern crate qmc5883p;
 
-use qmc5883l::*;
+use qmc5883p::*;
 
 use std::env;
 use std::f32::consts::PI;
@@ -19,7 +19,7 @@ fn main() {
     // Need correct magnetic declination for your location for accurate
     // readings. See http://www.magnetic-declination.com/
     let declination_rads = args[2].parse::<f32>().unwrap();
-    let mut dev = QMC5883L::new(i2c_dev).unwrap();
+    let mut dev = QMC5883P::new(i2c_dev).unwrap();
     dev.continuous().unwrap();
     loop {
         let (x, y, z) = dev.mag().unwrap();
