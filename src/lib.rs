@@ -55,17 +55,26 @@ pub enum OutputDataRate {
 /// Larger oversampling gets less in-band noise but higher power consumption.
 #[repr(u8)]
 pub enum OversampleRatio {
+    /// Sample Ratio 1
     Ratio1 = 3 << 4,
+    /// Sample Ratio 2
     Ratio2 = 2 << 4,
+    /// Sample Ratio 3
     Ratio4 = 1 << 4,
+    /// Sample Ratio 4
     Ratio8 = 0,
 }
-
+/// The downsampling rate controls how many internal samples are averaged together before
+/// providing a final reading.
 #[repr(u8)]
 pub enum DownsamplingRate{
+    /// Sample Size 8
     Rate8 = 3 << 6,
+    /// Sample Size 4
     Rate4 = 2 << 6,
+    /// Sample Size 2
     Rate2 = 1 << 6,
+    /// Sample Size 1
     Rate1 = 0,
 }
 /// Field range of magnetic sensor.
@@ -141,9 +150,9 @@ where
     }
 
     /// Set the device oversampling rate.
-    pub fn set_downsample(&mut self, dsr: DownsampleRate) -> Result<(), E> {
+    pub fn set_downsample(&mut self, dsr: DownsamplingRate) -> Result<(), E> {
         let ctrl1 = self.read_u8(Register::CONTROL1)?;
-        let v = (ctrl1 & !(DownsampleRate::Rate1 as u8)) | (dsr as u8);
+        let v = (ctrl1 & !(DownsamplingRate::Rate1 as u8)) | (dsr as u8);
         self.write_u8(Register::CONTROL1, v)
     }
 
@@ -158,7 +167,7 @@ where
     pub fn normal(&mut self) -> Result<(), E> {
         self.write_u8(Register::SIGN,0x06);
         let ctrl1 = self.read_u8(Register::CONTROL1)?;
-        self.write_u8(Register::CONTROL1, 0xCD)
+        self.write_u8(Register::CONTROL1, (ctrl1 & !MODE_CONTINUOUS) | MODE_NORMAL)
     }
 
     /// Put device in continous mode.
@@ -166,7 +175,7 @@ where
         self.write_u8(Register::SIGN,0x06);
         self.write_u8(Register::CONTROL2,0x08);
         let ctrl1 = self.read_u8(Register::CONTROL1)?;
-        self.write_u8(Register::CONTROL1, 0xC3)
+        self.write_u8(Register::CONTROL1, ctrl1 | MODE_CONTINUOUS)
     }
 
     /// Put device in standby mode.
